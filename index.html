@@ -1,74 +1,72 @@
-const express = require('express');
-const { Telegraf } = require('telegraf');
-const axios = require('axios');
-const cors = require('cors');
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiuMod</title>
+    <script src="https://telegram.org"></script>
+    <style>
+        body { background-color: #0b141a; color: #ffffff; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .avatar-container { margin-top: 20px; position: relative; }
+        .avatar { width: 110px; height: 110px; border-radius: 50%; border: 2px solid #0088cc; box-shadow: 0 0 15px rgba(0, 136, 204, 0.5); object-fit: cover; }
+        h1 { font-size: 24px; font-weight: bold; margin: 20px 0 5px 0; letter-spacing: 1px; }
+        .subtitle { color: #8899a6; font-size: 14px; margin-bottom: 30px; }
+        .card { background-color: #15222b; border-radius: 12px; width: 90%; max-width: 360px; padding: 15px 0; margin-bottom: 15px; border: 1px solid #20313c; }
+        .card-title { font-size: 22px; font-weight: bold; }
+        .card-desc { font-size: 11px; color: #718096; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .text-green { color: #2ecc71; }
+        .btn { width: 90%; max-width: 360px; padding: 14px 0; border-radius: 12px; margin-bottom: 12px; font-size: 15px; font-weight: bold; text-decoration: none; display: inline-block; box-sizing: border-box; cursor: pointer; text-transform: uppercase; }
+        .btn-getkey { background-color: transparent; color: #2ecc71; border: 1px solid #2ecc71; }
+        .btn-secondary { background-color: #1c2d37; color: #ffffff; border: 1px solid #283d4b; }
+        .footer { margin-top: 40px; font-size: 12px; color: #4a5568; }
+    </style>
+</head>
+<body>
+    <div class="avatar-container">
+        <img class="avatar" src="https://imgur.com" alt="Logo MiuMod">
+    </div>
+    <h1>GET KEY MIUMOD</h1>
+    <div class="subtitle">Lấy key miễn phí qua Telegram Bot.</div>
+    <div class="card">
+        <div class="card-title text-green" id="key-count">422</div>
+        <div class="card-desc">Keys Còn Lại</div>
+    </div>
+    <div class="card">
+        <div class="card-title text-green">FREE</div>
+        <div class="card-desc">Hoàn Toàn Miễn Phí</div>
+    </div>
+    <div class="btn btn-getkey" onclick="handleGetKey()">🔑 Lấy Key Miễn Phí</div>
+    <a href="https://t.me" target="_blank" class="btn btn-secondary">👤 Liên Hệ Admin</a>
+    <a href="https://t.me" target="_blank" class="btn btn-secondary">👥 Tham Gia Nhóm</a>
+    <div class="footer">Hệ thống key tự động · Miễn phí 100%</div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        const BACKEND_URL = "https://bot-key-059d.onrender.com"; 
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// ĐÃ SỬA CHỮ U CHUẨN: Thay chữ Ụ lỗi thành chữ U thường/hoa chính xác của Telegram
-const TELEGRAM_TOKEN = '8642960409:AAEc_y8aoE-i2UUvMAIwDSZt8d4BZjmF7n8';
-const LINK4M_API_KEY = '68b2988438d8cc2a1f108c6d';
-const bot = new Telegraf(TELEGRAM_TOKEN);
-
-let keysDatabase = {
-    availableCount: 422,
-    keyPool: ["MIUMOD-ABC123XYZ", "MIUMOD-POWER999", "MIUMOD-HNMOD888"]
-};
-
-app.get('/api/keys', (req, res) => {
-    res.json({ count: keysDatabase.availableCount });
-});
-
-app.post('/api/generate-link', async (req, res) => {
-    const { userId } = req.body;
-    if (!userId) return res.status(400).json({ message: "Thiếu thông tin User ID" });
-
-    // Thay thế bằng link Render thực tế của bạn ở Bước 2
-    const targetUrl = `https://onrender.com{userId}`;
-    
-    try {
-        const response = await axios.get(`https://link4m.com{LINK4M_API_KEY}&url=${encodeURIComponent(targetUrl)}`);
-        if (response.data && response.data.shortenedUrl) {
-            res.json({ link: response.data.shortenedUrl });
-        } else {
-            res.json({ link: targetUrl });
+        async function updateKeyCount() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/keys`);
+                const data = await response.json();
+                document.getElementById('key-count').innerText = data.count;
+            } catch (error) {
+                document.getElementById('key-count').innerText = "422"; 
+            }
         }
-    } catch (error) {
-        res.json({ link: targetUrl });
-    }
-});
-
-app.get('/api/callback', async (req, res) => {
-    const { userId } = req.query;
-    if (!userId) return res.send("<h3>Lỗi cấu hình hệ thống: Thiếu ID người dùng.</h3>");
-
-    if (keysDatabase.keyPool.length > 0 && keysDatabase.availableCount > 0) {
-     randomKey = keysDatabase.keyPool.pop();
-        keysDatabase.availableCount -= 1;
-
-        try {
-            await bot.telegram.sendMessage(userId, `🎉 Chúc mừng bạn đã nhận Key thành công!\n\n🔑 KEY CỦA BẠN: \`\${randomKey}\` \n\n(Hãy copy dán vào ứng dụng miumod để kích hoạt)`);
-            res.send(`
-                <meta charset="UTF-8">
-                <body style="background-color: #0b141a; color: white; text-align: center; font-family: sans-serif; padding-top: 50px;">
-                    <h2 style="color: #2ecc71;">VƯỢT LINK THÀNH CÔNG!</h2>
-                    <p>Key đã được gửi trực tiếp qua tin nhắn của Bot Telegram.</p>
-                    <p>Vui lòng quay lại ứng dụng Telegram để kiểm tra tin nhắn.</p>
-                </body>
-            `);
-        } catch (botError) {
-            res.send(`<h3>Đã có lỗi xảy ra khi Bot gửi key. Vui lòng bấm chat /start với Bot trước!</h3>`);
+        async function handleGetKey() {
+            const user = tg.initDataUnsafe?.user;
+            if (!user) { alert("Vui lòng mở ứng dụng này bên trong Telegram!"); return; }
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/generate-link`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id })
+                });
+                const data = await response.json();
+                if(data.link) { tg.openLink(data.link); } else { alert(data.message || "Hôm nay đã hết key hoặc xảy ra lỗi."); }
+            } catch (error) { alert("Không thể kết nối đến máy chủ cấp key!"); }
         }
-    } else {
-        res.send("<h3>Rất tiếc! Hiện tại kho cung cấp Key miễn phí đã hết. Vui lòng quay lại sau!</h3>");
-    }
-});
-
-bot.start((ctx) => ctx.reply('Chào mừng bạn đến với MiuMod! Hãy bấm vào nút Menu để mở giao diện lấy key.'));
-bot.launch();
-
-app.listen(3000, () => {
-    console.log("Server đang chạy ổn định tại port 3000");
-});
+        updateKeyCount();
+    </script>
+</body>
+</html>
