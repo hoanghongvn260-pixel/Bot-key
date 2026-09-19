@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiuMod</title>
+    <!-- Nhúng thư viện Telegram Web App SDK -->
+    <script src="https://telegram.org"></script>
+    <style>
+        body {
+            background-color: #0b141a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .avatar-container {
+            margin-top: 20px;
+            position: relative;
+        }
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 2px solid #0088cc;
+            box-shadow: 0 0 15px rgba(0, 136, 204, 0.5);
+            object-fit: cover;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0 5px 0;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            color: #8899a6;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background-color: #15222b;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 360px;
+            padding: 15px 0;
+            margin-bottom: 15px;
+            border: 1px solid #20313c;
+        }
+        .card-title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .card-desc {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .text-green { color: #2ecc71; }
+        
+        /* Cấu trúc nút bấm */
+        .btn {
+            width: 90%;
+            max-width: 360px;
+            padding: 14px 0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .btn-getkey {
+            background-color: transparent;
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+        .btn-secondary {
+            background-color: #1c2d37;
+            color: #ffffff;
+            border: 1px solid #283d4b;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ảnh Đại Diện Tròn Logo Xanh -->
+    <div class="avatar-container">
+        <img class="avatar" src="https://imgur.com" alt="Logo MiuMod">
+    </div>
+
+    <h1>GET KEY MIUMOD</h1>
+    <div class="subtitle">Lấy key miễn phí qua Telegram Bot.</div>
+
+    <!-- Khối Số Key Còn Lại -->
+    <div class="card">
+        <div class="card-title text-green" id="key-count">...</div>
+        <div class="card-desc">Keys Còn Lại</div>
+    </div>
+
+    <!-- Khối Chữ Free -->
+    <div class="card">
+        <div class="card-title text-green">FREE</div>
+        <div class="card-desc">Hoàn Toàn Miễn Phí</div>
+    </div>
+
+    <!-- Các Nút Chức Năng -->
+    <div class="btn btn-getkey" onclick="handleGetKey()">🔑 Lấy Key Miễn Phí</div>
+    <a href="https://t.me" target="_blank" class="btn btn-secondary">👤 Liên Hệ Admin</a>
+    
+    <!-- Link nhóm mới đã được cập nhật tại đây -->
+    <a href="https://t.me/muimod170610" target="_blank" class="btn btn-secondary">👥 Tham Gia Nhóm</a>
+
+    <div class="footer">Hệ thống key tự động · Miễn phí 100%</div>
+
+    <script>
+        // Khởi tạo ứng dụng Telegram Mini App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Đường dẫn API Backend Render của bạn sau khi bạn deploy server.js
+        const BACKEND_URL = "https://onrender.com"; 
+
+        async function updateKeyCount() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/keys`);
+                const data = await response.json();
+                document.getElementById('key-count').innerText = data.count;
+            } catch (error) {
+                document.getElementById('key-count').innerText = "422"; 
+            }
+        }
+
+        async function handleGetKey() {
+            const user = tg.initDataUnsafe?.user;
+            if (!user) {
+                alert("Vui lòng mở ứng dụng này bên trong Telegram!");
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/generate-link`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: user.id })
+                });
+                const data = await response.json();
+                
+                if(data.link) {
+                    tg.openLink(data.link);
+                } else {
+                    alert(data.message || "Hôm nay đã hết key hoặc xảy ra lỗi.");
+                }
+            } catch (error) {
+                alert("Không thể kết nối đến máy chủ cấp key!");
+            }
+        }
+
+        updateKeyCount();
+    </script>
+</body>
+</html>
