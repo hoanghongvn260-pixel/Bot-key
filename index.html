@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ĐÃ CẬP NHẬT CHÍNH XÁC TOKEN BOT CỦA BẠN
+// Cấu hình thông tin bảo mật chính xác của bạn
 const TELEGRAM_TOKEN = '8642960409:AAEc_y8aoE-i2UJvMAIwDSZt8d4BZjmF7n8';
 const LINK4M_API_KEY = '68b2988438d8cc2a1f108c6d';
 const bot = new Telegraf(TELEGRAM_TOKEN);
@@ -73,21 +73,8 @@ app.get('/api/callback', async (req, res) => {
     }
 });
 
-// Lệnh xử lý khi bấm /start - Hiện nút bấm lớn mở thẳng Mini App cực tiện lợi
-bot.start((ctx) => {
-    ctx.reply('Chào mừng bạn đến với MiuMod! Hãy bấm vào nút bên dưới để mở giao diện lấy key.', {
-        reply_markup: {
-            inline_keyboard: [
-                [
-                    {
-                        text: '🔑 MỞ ỨNG DỤNG LẤY KEY',
-                        web_app: { url: 'https://vercel.app' }
-                    }
-                ]
-            ]
-        }
-    });
-});
+// Quay về lệnh chào bằng chữ thông thường như lúc đầu khi gõ /start
+bot.start((ctx) => ctx.reply('Chào mừng bạn đến với MiuMod! Hãy bấm vào nút Menu bên cạnh ô chát để mở giao diện lấy key.'));
 
 bot.launch();
 
