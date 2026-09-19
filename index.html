@@ -45,7 +45,7 @@ app.get('/api/callback', async (req, res) => {
     if (!userId) return res.send("<h3>Lỗi cấu hình hệ thống: Thiếu ID người dùng.</h3>");
 
     if (keysDatabase.keyPool.length > 0 && keysDatabase.availableCount > 0) {
-        const randomKey = keysDatabase.keyPool.pop();
+     randomKey = keysDatabase.keyPool.pop();
         keysDatabase.availableCount -= 1;
 
         try {
